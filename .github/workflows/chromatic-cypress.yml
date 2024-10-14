@@ -35,4 +35,3 @@ jobs:
             exitZeroOnChanges: true
             onlyChanged: true
             zip: true
-            forceRebuild: true
