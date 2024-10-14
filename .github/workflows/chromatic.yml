@@ -28,7 +28,7 @@ jobs:
         - name: Install dependencies
           run: npm install
   
-        - name: Run Chromatic for Storybook
+        - name: Run Chromatic
           uses: chromaui/action@latest
           with:
             projectToken: chpt_54541445a4fd0e4
