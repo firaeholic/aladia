@@ -1,0 +1,74 @@
+name: CI/CD for Cypress and Chromatic
+
+on:
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.18.0'
+
+      - name: Install dependencies
+        run: npm install
+
+  build:
+    runs-on: ubuntu-latest
+    needs: setup
+
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v4
+        with:
+            fetch-depth: 0
+            ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Cache Node modules
+        uses: actions/cache@v3
+        with:
+            path: node_modules
+            key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+            restore-keys: |
+                ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Start Nuxt.js in development mode
+        run:
+          npm run dev &
+
+      - name: Wait for the server to be ready
+        run: npx wait-on http://localhost:3000 
+
+      - name: Run Cypress E2E with Chromatic Visual Regression
+        run:
+          ELECTRON_EXTRA_LAUNCH_ARGS=--remote-debugging-port=9222 npm run cypress:run
+          npx chromatic --cypress --project-token=chpt_54541445a4fd0e4 --exit-zero-on-changes
+
+      - name: Build Storybook
+        run: npm run build-storybook
+  
+      - name: Publish to Chromatic
+        run: |
+          npx chromatic --project-token=chpt_cf76ee5b1c340a1 --exit-zero-on-changes
+
+  store-artifacts:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Archive test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: cypress/results
