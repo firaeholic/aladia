@@ -46,34 +46,5 @@ jobs:
         run:
           ELECTRON_EXTRA_LAUNCH_ARGS=--remote-debugging-port=9222 npm run cypress:run
 
-      - name: Run Chromatic for storybook
-        uses: chromaui/action@latest
-        with:
-            projectToken: chpt_54541445a4fd0e4
-            exitZeroOnChanges: true
-            onlyChanged: true
-            zip: true
-            forceRebuild: true
-
       - name: Build Storybook
         run: npm run build-storybook
-
-      - name: Run Chromatic for storybook
-        uses: chromaui/action@latest
-        with:
-          projectToken: chpt_cf76ee5b1c340a1
-          exitZeroOnChanges: true
-          onlyChanged: true
-          zip: true
-          forceRebuild: true
-
-  store-artifacts:
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - name: Archive test results
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-results
-          path: cypress/results
