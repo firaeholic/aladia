@@ -31,8 +31,7 @@ jobs:
         - name: Run Chromatic for Storybook
           uses: chromaui/action@latest
           with:
-            projectToken: chpt_a23106e7e38b46a
+            projectToken: chpt_54541445a4fd0e4
             exitZeroOnChanges: true
             onlyChanged: true
             zip: true
-            forceRebuild: true
