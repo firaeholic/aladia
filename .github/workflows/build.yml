@@ -1,0 +1,50 @@
+name: CI/CD for Cypress and Chromatic
+
+on:
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.18.0'
+
+      - name: Install dependencies
+        run: npm install
+
+  build:
+    runs-on: ubuntu-latest
+    needs: setup
+
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v4
+        with:
+            fetch-depth: 0
+            ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Start Nuxt.js in development mode
+        run:
+          npm run dev &
+
+      - name: Wait for the server to be ready
+        run: npx wait-on http://localhost:3000 
+
+      - name: Run Cypress E2E
+        run:
+          ELECTRON_EXTRA_LAUNCH_ARGS=--remote-debugging-port=9222 npm run cypress:run
+
+      - name: Build Storybook
+        run: npm run build-storybook
