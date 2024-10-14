@@ -50,20 +50,24 @@ jobs:
       - name: Wait for the server to be ready
         run: npx wait-on http://localhost:3000 
 
-      - name: Run Chromatic
-        uses: chromaui/action@latest
-        with:
-          projectToken: chpt_54541445a4fd0e4
-          exitZeroOnChanges: true
-          onlyChanged: true
-          zip: true
+      - name: Run Cypress E2E
+        run:
+          ELECTRON_EXTRA_LAUNCH_ARGS=--remote-debugging-port=9222 npm run cypress:run
 
       - name: Build Storybook
         run: npm run build-storybook
   
-      - name: Publish to Chromatic
+      - name: Publish Storybook to Chromatic
         run: |
           npx chromatic --project-token=chpt_cf76ee5b1c340a1 --exit-zero-on-changes
+
+      - name: Run Chromatic
+        uses: chromaui/action@latest
+        with:
+          projectToken: chpt_cf76ee5b1c340a1
+          exitZeroOnChanges: true
+          onlyChanged: true
+          zip: true
 
   store-artifacts:
     runs-on: ubuntu-latest
