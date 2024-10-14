@@ -50,10 +50,13 @@ jobs:
       - name: Wait for the server to be ready
         run: npx wait-on http://localhost:3000 
 
-      - name: Run Cypress E2E with Chromatic Visual Regression
-        run:
-          ELECTRON_EXTRA_LAUNCH_ARGS=--remote-debugging-port=9222 npm run cypress:run
-          npx chromatic --cypress --project-token=chpt_54541445a4fd0e4 --exit-zero-on-changes
+      - name: Run Chromatic
+        uses: chromaui/action@latest
+        with:
+          projectToken: chpt_54541445a4fd0e4
+          exitZeroOnChanges: true
+          onlyChanged: true
+          zip: true
 
       - name: Build Storybook
         run: npm run build-storybook
